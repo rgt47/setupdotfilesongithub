@@ -7,7 +7,7 @@ categories: [GitHub, Dotfiles, DevOps, Configuration Management, Version Control
 description: "Learn how to create a comprehensive GitHub dotfiles repository to efficiently share configuration files, automate development environment setup, and maintain consistency across multiple machines and team members."
 image: "../../images/posts/ucsd-geisel-library.jpg"
 document-type: "blog"
-draft: true
+draft: false
 bibliography: references.bib
 execute:
   echo: true
