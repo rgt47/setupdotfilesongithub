@@ -101,8 +101,7 @@ I am documenting my learning process here. If you
 spot errors or have better approaches, please let me
 know.
 
-![Git-themed ambiance image for configuration
-management](media/images/ambiance1.png){.img-fluid}
+![](media/images/github-logo.png){.img-fluid width=30% fig-align="center"}
 
 *Version control is the foundation of reproducible
 configuration management.*
