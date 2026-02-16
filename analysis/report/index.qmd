@@ -5,7 +5,7 @@ subtitle: "Centralizing shell, git, and editor
   development environments"
 author: "Ronald G. Thomas"
 date: "2026-02-11"
-categories:
+categories: [github, git, bash, configuration, automation]
   [GitHub, DevOps, Configuration Management]
 description: >
   I did not really know how much time I was wasting
