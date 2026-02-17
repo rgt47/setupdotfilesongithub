@@ -6,7 +6,6 @@ subtitle: "Centralizing shell, git, and editor
 author: "Ronald G. Thomas"
 date: "2026-02-11"
 categories: [github, git, bash, configuration, automation]
-  [GitHub, DevOps, Configuration Management]
 description: >
   I did not really know how much time I was wasting
   reconfiguring every new machine until I set up a
