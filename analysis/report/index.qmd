@@ -536,9 +536,11 @@ management](media/images/ambiance3.jpg){.img-fluid}
 configurations mirrors the structured approach of
 academic research.*
 
+# What Did We Learn?
+
 ## Lessons Learnt
 
-### Conceptual Understanding
+**Conceptual Understanding:**
 
 - A dotfiles repository is fundamentally a backup
   and deployment system for the implicit knowledge
@@ -556,7 +558,7 @@ academic research.*
   `.env.local` files must be established before
   any content is committed.
 
-### Technical Skills
+**Technical Skills:**
 
 - Writing a portable `install.sh` that handles
   backup, linking, and platform detection in under
@@ -570,7 +572,7 @@ academic research.*
 - Configuring `git-crypt` for transparent encryption
   of sensitive files within a public repository.
 
-### Gotchas and Pitfalls
+**Gotchas and Pitfalls:**
 
 - Running the install script without first adding
   `.gitignore` rules can expose secrets in the
