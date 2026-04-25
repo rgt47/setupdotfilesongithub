@@ -3,7 +3,7 @@ title: "Creating a GitHub Dotfiles Repository"
 subtitle: "Centralizing shell, git, and editor
   configurations for portable, version-controlled
   development environments"
-author: "Ronald G. Thomas"
+author: "Ronald 'Ryy' G. Thomas"
 date: "2026-02-11"
 categories: [github, git, bash, configuration, automation]
 description: >
