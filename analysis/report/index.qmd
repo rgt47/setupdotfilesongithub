@@ -61,6 +61,16 @@ installation script, and the security considerations
 that come with publishing personal configurations to
 a public repository.
 
+More formally, this post documents the workstation-level
+Infrastructure as Code (IaC) tier of the Workflow Construct
+described in [post 52](/posts/52-workflow-construct/). A
+dotfiles repository is the keystone artefact of that tier: it
+is the versioned, declarative source from which a clean machine
+is rebuilt by running `install.sh`. The construct's other
+single-laptop layers (Shell, Editor, Vim plugins, zsh aliases)
+are downstream of this repository in the sense that they are
+all reproduced from its contents.
+
 ## Motivations
 
 - I was tired of spending hours reconfiguring shell
