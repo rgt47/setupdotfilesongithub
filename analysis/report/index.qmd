@@ -231,6 +231,22 @@ echo "Development environment configurations" \
   >> README.md
 ```
 
+**Do not place the repository inside a cloud-synced
+directory** such as `~/Dropbox/`, `~/iCloud Drive/`,
+or `~/Library/CloudStorage/...`. Git writes
+constantly to `.git/index`, `.git/HEAD`, and
+`.git/refs/...`; a cloud sync engine attempting to
+upload those writes simultaneously creates race
+conditions that corrupt the repository, leave
+working trees inconsistent, and in extreme cases
+truncate files to zero bytes. The dotfiles
+repository should be a local directory on each
+laptop, with git itself acting as the synchroniser
+between machines and GitHub as the single source of
+truth. Cloud sync of the repository directory
+provides no benefit beyond what the git remote
+already gives you.
+
 # Essential Configuration Files
 
 With the repository structure in place, the next
@@ -457,6 +473,116 @@ Run the Brewfile during installation:
 brew bundle --file=packages/Brewfile
 ```
 
+For language-specific package managers, add a
+parallel manifest. Python tools installed via
+`pipx` (CLI tools that ship as pip packages, such
+as `aider`, `claude`, `openai`) are not captured by
+Homebrew and require their own manifest:
+
+```bash
+# packages/pipx-tools.txt
+aider
+claude
+openai
+```
+
+Install them in `install.sh` after the Brewfile:
+
+```bash
+if command -v pipx >/dev/null 2>&1; then
+    while read -r tool; do
+        [[ -z "$tool" || "$tool" =~ ^# ]] && continue
+        pipx install --force "$tool"
+    done < packages/pipx-tools.txt
+fi
+```
+
+The same pattern extends to `npm -g`, `gem`, `cargo
+install`, and other language-specific managers as
+needed.
+
+## Scheduled Jobs (macOS launchd)
+
+If your dotfiles include scheduled background jobs
+(automated backups, periodic cleanups, mail sync),
+the launchd plists must be deployed to
+`~/Library/LaunchAgents/` and reloaded so launchd
+picks up changes. macOS launchd does not expand `~`
+in plist paths, so absolute paths are required;
+this conflicts with the goal of having one
+repository serve multiple users.
+
+The standard solution is template-substitution at
+install time:
+
+```bash
+# In the repository: launchd/local.backup.plist
+# uses __USER__ as a placeholder
+<string>/Users/__USER__/bin/backup.sh</string>
+```
+
+```bash
+# In install.sh
+for plist in "$DOTFILES"/launchd/*.plist; do
+    name="$(basename "$plist")"
+    target="$HOME/Library/LaunchAgents/$name"
+    sed "s|__USER__|$USER|g" "$plist" > "$target"
+done
+```
+
+To pick up changes after an install, reload each
+job:
+
+```bash
+launchctl bootout "gui/$UID/local.backup" 2>/dev/null
+launchctl bootstrap "gui/$UID" \
+    ~/Library/LaunchAgents/local.backup.plist
+```
+
+## Editor Plugin Manifests
+
+A `vimrc` or `init.lua` is small and should be
+tracked. The directories where the plugin manager
+deposits its downloaded plugins (`~/.vim/bundle/`,
+`~/.config/nvim/plugged/`, `~/.config/nvim/coc/`)
+are not. Synchronising those directories across
+laptops produces a 20-50 MB sync set that becomes
+stale, conflicts with each laptop's plugin
+versions, and occasionally fails because compiled
+artefacts are platform-specific.
+
+The portable pattern is to track only the manifest
+that the plugin manager reads. For vim-plug:
+
+```vim
+" editors/vimrc
+call plug#begin()
+Plug 'tpope/vim-fugitive'
+Plug 'preservim/nerdtree'
+" ... (one Plug line per plugin)
+call plug#end()
+```
+
+Then add the plugin directories to `.gitignore`:
+
+```gitignore
+config/vim/bundle/
+config/vim/plugged/
+config/nvim/plugged/
+config/nvim/coc/
+```
+
+After `install.sh` has linked the manifest, run
+the plugin manager once on the new laptop to
+populate the directories:
+
+```vim
+:PlugInstall
+```
+
+(Or, for nvim with lazy.nvim, the plugins
+auto-install on first launch.)
+
 ## Secure Configuration Management
 
 Never commit secrets to version control. Instead,
@@ -537,6 +663,21 @@ test:
    reveals the full history, including anything
    committed and later removed. Use `git-filter-repo`
    to scrub leaked secrets from history.
+6. **In-place editors on cloud-synced paths.**
+   `sed -i`, `awk -i inplace`, and `perl -i` use a
+   write-temp-then-rename pattern that races with
+   cloud sync engines (Dropbox, iCloud, Google
+   Drive). The race can leave the file truncated to
+   zero bytes, with the `.bak` saved by `-i.bak`
+   placed in the same cloud-synced location and
+   subject to the same race. If the dotfiles
+   repository is correctly outside cloud sync (as
+   recommended above), this hazard does not apply
+   inside the repo. It still applies to any script
+   in the repo that edits files under
+   `~/Library/CloudStorage/...`. Safe alternatives:
+   read into memory and write atomically, or copy
+   to `/tmp`, edit, and `mv` back.
 
 ![UCSD Geisel Library representing structured
 knowledge
@@ -618,6 +759,32 @@ academic research.*
   directory structure and may not work correctly in
   non-standard environments such as containers,
   NixOS, or enterprise-managed workstations.
+
+### Scope: dotfile portability, not workflow independence
+
+This post addresses the dotfiles layer only. It does
+not address the rest of the workflow that, in many
+single-user setups, is intertwined with cloud sync.
+Specifically out of scope here:
+
+- Project content directories (research repos,
+  datasets, drafts) that currently live under a
+  cloud-synced root such as `~/Dropbox/prj` or
+  `~/Library/CloudStorage/Dropbox`.
+- Backup-pipeline source paths in scripts and
+  launchd plists that hardcode the cloud-mounted
+  location.
+- Synchronisation of append-only state files
+  (shell history, AI-tool history files, editor
+  histories) across machines, where naive cloud
+  sync produces conflict copies on every overlapping
+  edit.
+
+Each of these is a separate architectural decision
+with different sync semantics and trade-offs. Post 64
+('Migrating Off Dropbox: Beyond Dotfiles') treats
+them as a follow-on framework that builds on the
+groundwork established here.
 
 ## Opportunities for Improvement
 
