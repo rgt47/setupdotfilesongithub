@@ -1,8 +1,5 @@
 ---
 title: "Creating a GitHub Dotfiles Repository"
-subtitle: "Centralizing shell, git, and editor
-  configurations for portable, version-controlled
-  development environments"
 author: "Ronald 'Ryy' G. Thomas"
 date: "2026-02-11"
 categories: [git, shell]
@@ -27,7 +24,7 @@ format:
 ![Dotfiles repository workflow for managing
 development environment
 configurations](media/images/hero.png){.img-fluid
-width=80%}
+width=80% fig-align="center"}
 
 *A dotfiles repository transforms scattered
 configuration files into a single, version-controlled
